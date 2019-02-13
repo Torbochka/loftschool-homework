@@ -17,8 +17,7 @@
    isAllTrue([100, 2, 3, 4, 5], n => n < 10) // вернет false
  */
 function isAllTrue(array, fn) {
-    let result=true;
-    
+
     if (!(array instanceof Array) || !array.length) {
         throw 'empty array';
     }
@@ -29,12 +28,11 @@ function isAllTrue(array, fn) {
     
     for (const elem of array) {
         if (!fn(elem)) {
-            result=false;
-            break;
+            return false;
         }
     }
 
-    return result;
+    return true;
 }
 
 /*
@@ -54,8 +52,6 @@ function isAllTrue(array, fn) {
    isSomeTrue([1, 2, 3, 4, 5], n => n > 20) // вернет false
  */
 function isSomeTrue(array, fn) {
-    let result=false;
-
     if (!(array instanceof Array) || !array.length) {
         throw 'empty array';
     }
@@ -66,12 +62,11 @@ function isSomeTrue(array, fn) {
 
     for (const elem of array) {
         if (fn(elem)) {
-            result=true;
-            break;
+            return true;
         }
     }
 
-    return result;
+    return false;
 }
 
 /*
@@ -121,7 +116,7 @@ function returnBadArguments(fn, ...arg) {
    - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
 function calculator(number = 0) {
-    
+
     if (isNaN(number)) {
         throw 'number is not a number';
     }
