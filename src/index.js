@@ -17,7 +17,7 @@
    isAllTrue([100, 2, 3, 4, 5], n => n < 10) // вернет false
  */
 function isAllTrue(array, fn) {
-    let result;
+    let result=true;
     
     if (!(array instanceof Array) || !array.length) {
         throw 'empty array';
@@ -28,7 +28,10 @@ function isAllTrue(array, fn) {
     }
     
     for (const elem of array) {
-        result = fn(elem);
+        if (!fn(elem)) {
+            result=false;
+            break;
+        }
     }
 
     return result;
@@ -51,7 +54,7 @@ function isAllTrue(array, fn) {
    isSomeTrue([1, 2, 3, 4, 5], n => n > 20) // вернет false
  */
 function isSomeTrue(array, fn) {
-    let result;
+    let result=false;
 
     if (!(array instanceof Array) || !array.length) {
         throw 'empty array';
@@ -62,7 +65,10 @@ function isSomeTrue(array, fn) {
     }
 
     for (const elem of array) {
-        result = fn(elem);
+        if (fn(elem)) {
+            result=true;
+            break;
+        }
     }
 
     return result;
@@ -121,49 +127,16 @@ function calculator(number = 0) {
     }
 
     return {
-        
-        sum: (...args) => {
-            let result = number;
-
-            for (const elem of args) {
-                result += elem;
+        sum: (...args) => args.reduce((prev, current) => prev + current, number),
+        dif: (...args) => args.reduce((prev, current) => prev - current, number),
+        div: (...args) => args.reduce((prev, current) => {
+            if (current === 0) {
+                throw 'division by 0';
             }
-
-            return result;
-        },
-
-        dif: (...args) => {
-            let result = number;
-
-            for (const elem of args) {
-                result -= elem;
-            }
-
-            return result;
-        },
-
-        div: (...args) => {
-            let result = number;
-
-            for (const elem of args) {
-                if (elem === 0) {
-                    throw 'division by 0';
-                }
-                result /= elem;
-            }
-
-            return result;
-        },
-
-        mul: (...args) => {
-            let result = number;
-
-            for (const elem of args) {
-                result*=elem;
-            }
-
-            return result;
-        }
+            
+            return prev / current;
+        }, number),
+        mul: (...args) => args.reduce((prev, current) => prev * current, number)
     }
 }
 
