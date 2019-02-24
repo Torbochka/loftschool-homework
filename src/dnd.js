@@ -32,11 +32,10 @@ function createDiv() {
     div.classList.add('draggable-div');
 
     let randomColor = () => {
-        const letters = '0123456789ABCDEF';
         let color = '#';
 
         for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
+            color += Math.floor(Math.random() * 16).toString();
         }
 
         return color;
@@ -84,32 +83,31 @@ function addListeners(target) {
     };
 
     let moveAt = e => {
-        target.style.left = e.pageX - shiftX + 'px';
-        target.style.top = e.pageY - shiftY + 'px';
+        e.target.style.left = e.pageX - shiftX + 'px';
+        e.target.style.top = e.pageY - shiftY + 'px';
     };
 
     let mouseDown = e => {
-        let coords = getCoords(target);
+        if (e.target.classList.contains('draggable-div')) {
+            let coords = getCoords(e.target);
 
-        target.addEventListener('mousedown', mouseDown);
-        document.addEventListener('mousemove', mouseMove);
-        shiftX = e.pageX - coords.left;
-        shiftY = e.pageY - coords.top;
-        moveAt(e);
-        target.style.zIndex = '1000';
+            shiftX = e.pageX - coords.left;
+            shiftY = e.pageY - coords.top;
+            moveAt(e);
+            e.target.style.zIndex = '1000';
+            target.addEventListener('mousemove', moveAt);
+        }
     };
 
-    let mouseMove = e => {
-        moveAt(e);
-    };
-
-    let mouseUp = () => {
-        document.removeEventListener('mousemove', mouseMove);
-        document.removeEventListener('mouseup', mouseUp);
+    let mouseUp = e => {
+        if (e.target.classList.contains('draggable-div')) {
+            target.removeEventListener('mousedown', mouseDown);
+            target.removeEventListener('mousemove', moveAt);
+            target.addEventListener('mousedown', mouseDown);
+        }
     };
 
     target.addEventListener('mousedown', mouseDown);
-    document.addEventListener('mousemove', mouseMove);
     target.addEventListener('mouseup', mouseUp);
 }
 
@@ -122,10 +120,11 @@ addDivButton.addEventListener('click', () => {
     // добавить на страницу
     homeworkContainer.appendChild(div);
     // назначить обработчики событий мыши для реализации D&D
-    addListeners(div);
     // можно не назначать обработчики событий каждому div в отдельности, а использовать делегирование
     // или использовать HTML5 D&D - https://www.html5rocks.com/ru/tutorials/dnd/basics/
 });
+
+addListeners(document);
 
 export {
     createDiv
