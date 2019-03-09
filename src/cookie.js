@@ -63,47 +63,71 @@ let getCookies = () => {
     }, {}) : {};
 };
 
+let addAllRowsInTable = (cookies, matcher, ...arg) => {
+    listTable.innerHTML = '';
+    let fragment = document.createDocumentFragment();
+
+    if (matcher) {
+        Object.entries(cookies).forEach((current) => {
+            if (matcher(...arg, ...current)) {
+                fragment.appendChild(createRow(...current));
+            }
+        });
+    } else {
+        Object.entries(cookies).forEach((current) => {
+            fragment.appendChild(createRow(...current));
+        });
+    }
+
+    listTable.appendChild(fragment);
+};
+
 let createRow = (name, value) => {
-    let row = document.createElement('tr');
-    let cell1 = document.createElement('td');
-    let cell2 = document.createElement('td');
-    let cell3 = document.createElement('td');
-    let button = document.createElement('button');
+    let tr = document.createElement('tr');
 
-    button.innerHTML = 'Удалить';
-    button.setAttribute('name', 'delete');
-    cell1.innerHTML = name;
-    cell2.innerHTML = value;
-    cell3.appendChild(button);
-    row.appendChild(cell1);
-    row.appendChild(cell2);
-    row.appendChild(cell3);
+    tr.innerHTML = [
+        `<td data-name="${name}">${name}</td>`,
+        `<td>${value}</td>`,
+        '<td><button name="delete">Удалить</button></td>'
+    ].join('');
 
-    return row;
+    return tr;
+};
+
+let addRowInTableAndCookies = (name, value) => {
+    document.cookie = `${name}=${value}`;
+    listTable.appendChild(createRow(name, value));
+};
+
+let removeRowInTableAndCookies = (row) => {
+    let name = row.cells[0].innerHTML;
+
+    row.remove();
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+};
+
+let changeCookieInTable = (name, value) => {
+    for (const row of listTable.children) {
+        if (row.cells[0].innerHTML === name) {
+            row.cells[1].innerHTML = value;
+        }
+    }
+};
+
+let addORChangeCookie = (name, value) => {
+    document.cookie = `${name}=${value}`;
 };
 
 filterNameInput.addEventListener('keyup', e => {
-    listTable.innerHTML = '';
-    let fragment = document.createDocumentFragment();
+    let cookies = getCookies();
 
-    Object.entries(getCookies()).forEach(([k, v]) => {
-        if (isMatchChunks(isMatch, e.target.value, k, v)) {
-            fragment.appendChild(createRow(k, v));
-        }
-    });
-
-    listTable.appendChild(fragment);
+    addAllRowsInTable(cookies, isMatchChunks, isMatch, e.target.value);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    listTable.innerHTML = '';
-    let fragment = document.createDocumentFragment();
+    let cookies = getCookies();
 
-    Object.entries(getCookies()).forEach(([k, v]) => {
-        fragment.appendChild(createRow(k, v));
-    });
-
-    listTable.appendChild(fragment);
+    addAllRowsInTable(cookies);
 });
 
 document.addEventListener('click', (e) => {
@@ -111,10 +135,7 @@ document.addEventListener('click', (e) => {
     let cookies = getCookies();
 
     if (e.target.name === 'delete') {
-        let lastCookie = e.target.closest('tr').cells[0].innerHTML;
-
-        e.target.closest('tr').remove();
-        document.cookie = `${lastCookie}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+        removeRowInTableAndCookies(e.target.closest('tr'));
 
         return;
     }
@@ -122,28 +143,22 @@ document.addEventListener('click', (e) => {
     if (e.target.id === addButton.id) {
         if (filterNameInput.value) {
             if (cookies.hasOwnProperty(name) && !isMatch(value, filterNameInput.value)) {
-                document.cookie = `${name}=${value}`;
+                addORChangeCookie(name, value);
                 for (const row of listTable.children) {
                     if (row.cells[0].innerHTML === name) {
                         row.remove();
                     }
                 }
             } else if (isMatchChunks(isMatch, filterNameInput.value, name, value)) {
-                document.cookie = `${name}=${value}`;
-                listTable.appendChild(createRow(name, value));
+                addRowInTableAndCookies(name, value);
             } else {
-                document.cookie = `${name}=${value}`;
+                addORChangeCookie(name, value);
             }
         } else {
             if (cookies.hasOwnProperty(name)) {
-                for (const row of listTable.children) {
-                    if (row.cells[0].innerHTML === name) {
-                        row.cells[1].innerHTML = value;
-                    }
-                }
+                changeCookieInTable(name, value);
             } else {
-                document.cookie = `${name}=${value}`;
-                listTable.appendChild(createRow(name, value));
+                addRowInTableAndCookies(name, value);
             }
         }
     }
