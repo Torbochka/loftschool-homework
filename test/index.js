@@ -1,114 +1,48 @@
 import { assert } from 'chai';
-import { randomValue as random, randomStringArray } from '../helper';
 import {
-    bindFunction,
-    sumWithDefaults,
-    returnArgumentsArray,
-    returnCounter,
-    returnFirstArgument,
-    returnFnResult
+    bind,
+    reversePrint
 } from '../src/index';
 
-describe('ДЗ 1 - функции', () => {
-    describe('returnFirstArgument', () => {
-        it('должна возвращать переданный аргумент', () => {
-            let value = random();
-            let result = returnFirstArgument(value);
+describe('Для анкеты', () => {
 
-            assert.strictEqual(result, value);
-        });
-    });
+    describe('bind', () => {
 
-    describe('sumWithDefaults', () => {
-        it('должна возвращать сумму переданных аргументов', () => {
-            let valueA = random('number');
-            let valueB = random('number');
-            let result = sumWithDefaults(valueA, valueB);
-
-            assert.strictEqual(result, valueA + valueB);
-        });
-
-        it('значение по умолчанию второго аргумента должно быть 100', () => {
-            let value = random('number');
-            let result = sumWithDefaults(value);
-
-            assert.strictEqual(result, value + 100);
-        });
-    });
-
-    describe('returnArgumentsArray', () => {
-        it('должна возвращать переданные аргументы в виде массива', () => {
-            let result;
-            let value;
-
-            value = random('array', 1);
-            result = returnArgumentsArray(...value);
-            assert.deepEqual(result, value);
-        });
-
-        it('должна возвращать пустой массив если нет аргументов', () => {
-            let result = returnArgumentsArray();
-
-            assert.deepEqual(result, []);
-        });
-    });
-
-    describe('returnFnResult', () => {
-        it('должна возвращать результат вызова переданной функции', () => {
-            function fn() {
-                return value;
+        let calc = {
+            a: 2,
+            b: 2,
+            sum(...args) {
+                return this.a + this.b + [...args].reduce((a, c)=> a + c);
             }
+        };
 
-            let value = random();
-            let result = returnFnResult(fn);
+        it('Привязать контекст к функции через bind и проверить, что контекст привязан', () => {
+            const result = bind(calc.sum, calc, 2);
 
-            assert.strictEqual(result, value);
+            assert.equal(8, result(2));
         });
     });
 
-    describe('returnCounter', () => {
-        it('должна возвращать функцию', () => {
-            let result = returnCounter();
+    describe('reversePrint', () => {
 
-            assert.typeOf(result, 'function');
-        });
+        it('Сделать реверс связанного списка и проверить, что реверс прошел', () => {
 
-        it('возвращаемая функция должна увеличивать переданное число на единицу при каждом вызове', () => {
-            let value = random('number');
-            let result = returnCounter(value);
+            const someList = {
+                value: 1,
+                next: {
+                    value: 2,
+                    next: {
+                        value: 3,
+                        next: {
+                            value: 4,
+                            next: null
+                        }
+                    }
+                }
+            };
 
-            assert.equal(result(), value + 1);
-            assert.equal(result(), value + 2);
-            assert.equal(result(), value + 3);
-        });
-
-        it('значение аргумента должно быть 0 по умолчанию', () => {
-            let result = returnCounter();
-
-            assert.equal(result(), 1);
-            assert.equal(result(), 2);
-            assert.equal(result(), 3);
+            assert.equal(1, reversePrint(someList));
         });
     });
 
-    describe('bindFunction', () => {
-        let valuesArr = randomStringArray();
-
-        function fn(...valuesArr) {
-            return [...arguments].join('');
-        }
-
-        it('должна возвращать функцию', () => {
-            let result = bindFunction(fn);
-
-            assert.typeOf(result, 'function');
-        });
-
-        it('должна привязывать любое кол-во аргументов возвращаемой функции', () => {
-
-            let result = bindFunction(fn, ...valuesArr);
-
-            assert.equal(result(), valuesArr.join(''));
-        });
-    });
 });

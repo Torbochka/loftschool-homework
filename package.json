@@ -10,6 +10,7 @@
     "watch": "webpack-dev-server --progress --colors --open",
     "start": "npm run watch",
     "test": "karma start",
+    "server": "nodemon ./src/server/server.js",
     "cover": "istanbul cover _mocha -- test/*.js",
     "prepare": "npm run travis"
   },
@@ -49,6 +50,7 @@
     "mocha": "^5.2.0",
     "puppeteer": "^1.10.0",
     "webpack": "^4.29.1",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.1.2",
+    "nodemon": "^1.18.10"
   }
 }
