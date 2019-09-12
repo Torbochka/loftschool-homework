@@ -11,6 +11,8 @@
     "start": "npm run watch",
     "test": "karma start",
     "server": "nodemon ./src/server/server.js",
+    "dev": "node app.js",
+    "server-debug": "nodemon --inspect app.js",
     "cover": "istanbul cover _mocha -- test/*.js",
     "prepare": "npm run travis"
   },
